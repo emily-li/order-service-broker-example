@@ -48,7 +48,7 @@ public class Stock {
     @Override
     public int hashCode() {
         int result = symbol != null ? symbol.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
+        result = 31 * result + (value != null ? Double.valueOf(value.doubleValue()).hashCode() : 0);
         result = 31 * result + volume;
         return result;
     }
