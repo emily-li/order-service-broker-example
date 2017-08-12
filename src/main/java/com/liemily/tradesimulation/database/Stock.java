@@ -24,6 +24,18 @@ public class Stock {
         this.volume = volume;
     }
 
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public BigDecimal getValue() {
+        return value;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
+
     @Override
     public String toString() {
         return "Stock{" +
