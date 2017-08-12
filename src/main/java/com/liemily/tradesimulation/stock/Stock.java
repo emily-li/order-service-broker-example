@@ -1,4 +1,4 @@
-package com.liemily.tradesimulation.database;
+package com.liemily.tradesimulation.stock;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

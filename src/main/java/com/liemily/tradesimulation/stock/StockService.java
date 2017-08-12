@@ -1,4 +1,4 @@
-package com.liemily.tradesimulation.database;
+package com.liemily.tradesimulation.stock;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

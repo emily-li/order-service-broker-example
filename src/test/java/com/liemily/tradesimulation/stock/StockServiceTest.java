@@ -1,4 +1,4 @@
-package com.liemily.tradesimulation.database;
+package com.liemily.tradesimulation.stock;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -45,7 +45,7 @@ public class StockServiceTest {
         try {
             stockRepository.delete(stockSymbol);
         } catch (EmptyResultDataAccessException e) {
-            logger.info("Attempted to delete stock " + stockSymbol + " but it was not present in the database");
+            logger.info("Attempted to delete stock " + stockSymbol + " but it was not present in the stock");
         }
     }
 
