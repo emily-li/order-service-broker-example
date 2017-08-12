@@ -17,7 +17,7 @@ public class Trade {
     private TradeType tradeType;
 
     // Default constructor required for Spring JPA
-    public Trade() {
+    private Trade() {
     }
 
     public Trade(String username, String stockSymbol, int volume, TradeType tradeType) {
