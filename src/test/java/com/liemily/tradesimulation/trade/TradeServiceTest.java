@@ -1,8 +1,11 @@
 package com.liemily.tradesimulation.trade;
 
+import com.liemily.tradesimulation.account.Account;
+import com.liemily.tradesimulation.account.AccountRepository;
+import com.liemily.tradesimulation.account.exceptions.InsufficientFundsException;
 import com.liemily.tradesimulation.stock.Stock;
 import com.liemily.tradesimulation.stock.StockRepository;
-import com.liemily.tradesimulation.stock.StockServiceTest;
+import com.liemily.tradesimulation.stock.exceptions.InsufficientStockException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.junit.After;
@@ -26,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class TradeServiceTest {
-    private static final Logger logger = LogManager.getLogger(StockServiceTest.class);
+    private static final Logger logger = LogManager.getLogger(TradeServiceTest.class);
 
     @Autowired
     private TradeService tradeService;
@@ -34,16 +37,21 @@ public class TradeServiceTest {
     private TradeRepository tradeRepository;
     @Autowired
     private StockRepository stockRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     private Trade trade;
     private Stock stock;
+    private int volume;
 
     private String username = "user";
     private String stockSymbol = "SYM";
-    private int volume;
+    private Account account = new Account(username, new BigDecimal(20));
 
     @Before
     public void setup() throws Exception {
+        accountRepository.save(account);
+
         stockSymbol += UUID.randomUUID();
         stock = new Stock(stockSymbol, new BigDecimal(1.5), 1);
         stockRepository.save(stock);
@@ -61,11 +69,24 @@ public class TradeServiceTest {
         } catch (EmptyResultDataAccessException e) {
             logger.info("Attempted to delete stock " + stockSymbol + " but it was not present in the database");
         }
+        try {
+            accountRepository.delete(account);
+        } catch (EmptyResultDataAccessException e) {
+            logger.info("Attempted to delete stock " + stockSymbol + " but it was not present in the database");
+        }
     }
 
-    @Test
+    @Test(expected = InsufficientStockException.class)
     public void testProcessInvalidBuyDueToInsufficientStock() throws Exception {
         volume = 10;
+        trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
+        trade = tradeService.process(trade);
+        assertEquals(0, trade.getOrderId());
+    }
+
+    @Test(expected = InsufficientFundsException.class)
+    public void testProcessInvalidBuyDueToInsufficientCredits() throws Exception {
+        volume = 100;
         trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
         trade = tradeService.process(trade);
         assertEquals(0, trade.getOrderId());
