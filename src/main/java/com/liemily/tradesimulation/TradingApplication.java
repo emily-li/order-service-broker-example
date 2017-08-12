@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Created by Emily Li on 23/07/2017.
  */
 @SpringBootApplication
-public class TradeApplication {
+public class TradingApplication {
     public static void main(String[] args) {
-        SpringApplication.run(TradeApplication.class, args);
+        SpringApplication.run(TradingApplication.class, args);
     }
 }
