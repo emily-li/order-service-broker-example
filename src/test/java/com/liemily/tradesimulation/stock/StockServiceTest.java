@@ -51,7 +51,7 @@ public class StockServiceTest {
 
     @Test
     public void testWithdrawAvailableStock() {
-        boolean success = stockService.withdrawStock(stockSymbol, 1);
+        boolean success = stockService.withdraw(stockSymbol, 1);
 
         Stock updatedStock = stockRepository.findOne(stockSymbol);
         assertEquals(0, updatedStock.getVolume());
@@ -60,7 +60,7 @@ public class StockServiceTest {
 
     @Test
     public void testWithdrawUnavailableStock() {
-        boolean success = stockService.withdrawStock(stockSymbol, 2);
+        boolean success = stockService.withdraw(stockSymbol, 2);
 
         Stock updatedStock = stockRepository.findOne(stockSymbol);
         assertEquals(1, updatedStock.getVolume());
