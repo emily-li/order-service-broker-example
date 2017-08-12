@@ -13,6 +13,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -58,5 +61,33 @@ public class StockServiceTest {
         stockService.delete(stockSymbol);
         Stock deletedStock = stockService.findOne(stockSymbol);
         Assert.assertNull(deletedStock);
+    }
+
+    @Test
+    public void testUpdateStock() {
+        Stock stock = new Stock(stockSymbol, new BigDecimal(1.5), 1);
+        stockService.save(stock);
+
+        stock = new Stock(stockSymbol, new BigDecimal(2.0), 2);
+        stockService.save(stock);
+
+        Stock foundStock = stockService.findOne(stockSymbol);
+        Assert.assertEquals(stock, foundStock);
+    }
+
+    @Test
+    public void testGetStocks() {
+        Stock stock1 = new Stock(stockSymbol, new BigDecimal(1.5), 1);
+        Stock stock2 = new Stock(stockSymbol + "2", new BigDecimal(2), 2);
+
+        Collection<Stock> writtenStocks = new HashSet<>();
+        writtenStocks.add(stock1);
+        writtenStocks.add(stock2);
+
+        stockService.save(writtenStocks);
+
+        List<Stock> foundStocks = stockService.findAll();
+        Assert.assertTrue(foundStocks.containsAll(writtenStocks));
+        Assert.assertTrue(writtenStocks.containsAll(foundStocks));
     }
 }
