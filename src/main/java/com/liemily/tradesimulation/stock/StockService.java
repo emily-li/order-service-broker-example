@@ -1,5 +1,7 @@
 package com.liemily.tradesimulation.stock;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class StockService {
+    private static final Logger logger = LogManager.getLogger(StockService.class);
+
     private StockRepository stockRepository;
 
     @Autowired
@@ -17,7 +21,11 @@ public class StockService {
     }
 
     @Transactional
-    public boolean withdrawStock(String stockSymbol, int volume) {
-        return stockRepository.withdraw(stockSymbol, volume) > 0;
+    public boolean withdraw(String stockSymbol, int volume) {
+        boolean success = stockRepository.withdraw(stockSymbol, volume) > 0;
+        if (!success) {
+            logger.info("Failed to withdraw " + volume + " " + stockSymbol + " stocks");
+        }
+        return success;
     }
 }
