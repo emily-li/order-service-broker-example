@@ -1,9 +1,10 @@
 DROP TABLE IF EXISTS `stock`;
 DROP TABLE IF EXISTS `trade`;
+DROP TABLE IF EXISTS `account`;
 
 CREATE TABLE IF NOT EXISTS `stock` (
     `symbol` VARCHAR(50)    NOT NULL PRIMARY KEY,
-    `value`  DECIMAL(13,2)  NOT NULL,
+    `value`  DECIMAL(65,2)  NOT NULL,
     `volume` INT            NOT NULL
 );
 
@@ -13,4 +14,9 @@ CREATE TABLE IF NOT EXISTS `trade` (
     `stock_symbol`  VARCHAR(50) NOT NULL,
     `volume`        INT         NOT NULL,
     `trade_type`    VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `account` (
+    `username`      VARCHAR(50)     NOT NULL,
+    `credits`       DECIMAL(65,2)   NOT NULL
 );
