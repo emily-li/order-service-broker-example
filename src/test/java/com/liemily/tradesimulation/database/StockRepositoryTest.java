@@ -12,6 +12,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -21,11 +24,8 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class StockServiceTest {
+public class StockRepositoryTest {
     private static final Logger logger = LogManager.getLogger(StockServiceTest.class);
-
-    @Autowired
-    private StockService stockService;
 
     @Autowired
     private StockRepository stockRepository;
@@ -50,20 +50,41 @@ public class StockServiceTest {
     }
 
     @Test
-    public void testWithdrawAvailableStock() {
-        boolean success = stockService.withdrawStock(stockSymbol, 1);
-
-        Stock updatedStock = stockRepository.findOne(stockSymbol);
-        assertEquals(0, updatedStock.getVolume());
-        assertTrue(success);
+    public void testWriteStock() {
+        Stock foundStock = stockRepository.findOne(stockSymbol);
+        assertEquals(stock, foundStock);
     }
 
     @Test
-    public void testWithdrawUnavailableStock() {
-        boolean success = stockService.withdrawStock(stockSymbol, 2);
+    public void testDeleteStock() {
+        Stock foundStock = stockRepository.findOne(stockSymbol);
+        assertEquals(stock, foundStock);
+        stockRepository.delete(stockSymbol);
+        Stock deletedStock = stockRepository.findOne(stockSymbol);
+        assertNull(deletedStock);
+    }
 
-        Stock updatedStock = stockRepository.findOne(stockSymbol);
-        assertEquals(1, updatedStock.getVolume());
-        assertFalse(success);
+    @Test
+    public void testUpdateStock() {
+        stock = new Stock(stockSymbol, new BigDecimal(2.0), 2);
+        stockRepository.save(stock);
+
+        Stock foundStock = stockRepository.findOne(stockSymbol);
+        assertEquals(stock, foundStock);
+    }
+
+    @Test
+    public void testGetStocks() {
+        Stock stock2 = new Stock(stockSymbol + "2", new BigDecimal(2), 2);
+
+        stockRepository.save(stock2);
+
+        Collection<Stock> writtenStocks = new HashSet<>();
+        writtenStocks.add(stock);
+        writtenStocks.add(stock2);
+
+        List<Stock> foundStocks = stockRepository.findAll();
+        assertTrue(foundStocks.containsAll(writtenStocks));
+        assertTrue(writtenStocks.containsAll(foundStocks));
     }
 }
