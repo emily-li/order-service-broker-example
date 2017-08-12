@@ -1,4 +1,4 @@
-package com.liemily.springdatajpaexample.stock;
+package com.liemily.tradesimulation.database;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
