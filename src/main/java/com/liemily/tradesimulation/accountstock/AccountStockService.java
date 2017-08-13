@@ -1,6 +1,6 @@
 package com.liemily.tradesimulation.accountstock;
 
-import com.liemily.tradesimulation.stock.exceptions.InsufficientStockException;
+import com.liemily.tradesimulation.accountstock.exceptions.InsufficientAccountStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -34,10 +34,10 @@ public class AccountStockService {
     }
 
     @Transactional
-    public void removeStock(String username, String stockSymbol, int volume) throws InsufficientStockException {
+    public void removeStock(String username, String stockSymbol, int volume) throws InsufficientAccountStockException {
         int affectedRows = accountStockRepository.remove(username, stockSymbol, volume);
         if (affectedRows <= 0) {
-            throw new InsufficientStockException("Failed to remove " + volume + " " + stockSymbol + " stocks from user " + username + " due to insufficient stock");
+            throw new InsufficientAccountStockException("Failed to remove " + volume + " " + stockSymbol + " stocks from user " + username + " due to insufficient stock");
         }
     }
 }
