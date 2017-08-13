@@ -17,10 +17,6 @@ public class Account {
     private Account() {
     }
 
-    public Account(String username) {
-        this.username = username;
-    }
-
     public Account(String username, BigDecimal credits) {
         this.username = username;
         this.credits = credits;
@@ -49,8 +45,8 @@ public class Account {
 
         Account account = (Account) o;
 
-        if (username != null ? !username.equals(account.username) : account.username != null) return false;
-        return credits != null ? credits.equals(account.credits) : account.credits == null;
+        return (username != null ? username.equals(account.username) : account.username == null)
+                && (credits != null ? credits.equals(account.credits) : account.credits == null);
     }
 
     @Override
