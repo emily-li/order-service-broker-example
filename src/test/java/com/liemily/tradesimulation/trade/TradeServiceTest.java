@@ -3,6 +3,9 @@ package com.liemily.tradesimulation.trade;
 import com.liemily.tradesimulation.account.Account;
 import com.liemily.tradesimulation.account.AccountRepository;
 import com.liemily.tradesimulation.account.exceptions.InsufficientFundsException;
+import com.liemily.tradesimulation.accountstock.AccountStock;
+import com.liemily.tradesimulation.accountstock.AccountStockRepository;
+import com.liemily.tradesimulation.accountstock.AccountStockService;
 import com.liemily.tradesimulation.stock.Stock;
 import com.liemily.tradesimulation.stock.StockRepository;
 import com.liemily.tradesimulation.stock.exceptions.InsufficientStockException;
@@ -34,11 +37,16 @@ public class TradeServiceTest {
     @Autowired
     private TradeService tradeService;
     @Autowired
+    private AccountStockService accountStockService;
+
+    @Autowired
     private TradeRepository tradeRepository;
     @Autowired
     private StockRepository stockRepository;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private AccountStockRepository accountStockRepository;
 
     private Trade trade;
     private Stock stock;
@@ -60,9 +68,9 @@ public class TradeServiceTest {
     @After
     public void tearDown() throws Exception {
         try {
-            tradeRepository.delete(trade);
+            tradeRepository.delete(trade.getTradeId());
         } catch (EmptyResultDataAccessException e) {
-            logger.info("Attempted to delete trade " + trade.getOrderId() + " but it was not present in the database");
+            logger.info("Attempted to delete trade " + trade.getTradeId() + " but it was not present in the database");
         }
         try {
             stockRepository.delete(stock);
@@ -81,7 +89,7 @@ public class TradeServiceTest {
         volume = 10;
         trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
         trade = tradeService.process(trade);
-        assertEquals(0, trade.getOrderId());
+        assertEquals(0, trade.getTradeId());
     }
 
     @Test(expected = InsufficientFundsException.class)
@@ -89,7 +97,7 @@ public class TradeServiceTest {
         volume = 100;
         trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
         trade = tradeService.process(trade);
-        assertEquals(0, trade.getOrderId());
+        assertEquals(0, trade.getTradeId());
     }
 
     @Test
@@ -97,6 +105,11 @@ public class TradeServiceTest {
         volume = 1;
         trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
         trade = tradeService.process(trade);
-        assertTrue(trade.getOrderId() > 0);
+
+        AccountStock accountStock = accountStockService.getAccountStockForUser(username, stockSymbol);
+        assertEquals(trade.getUsername(), accountStock.getUsername());
+        assertEquals(trade.getStockSymbol(), accountStock.getStockSymbol());
+        assertEquals(trade.getVolume(), accountStock.getVolume());
+        assertTrue(trade.getTradeId() > 0);
     }
 }
