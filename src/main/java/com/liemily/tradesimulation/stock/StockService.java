@@ -28,7 +28,9 @@ public class StockService {
     public void remove(String stockSymbol, int volume) throws InsufficientStockException {
         boolean success = stockRepository.remove(stockSymbol, volume) > 0;
         if (!success) {
-            throw new InsufficientStockException("Failed to withdraw " + volume + " " + stockSymbol + " stocks due to insufficient volume");
+            String error = "Failed to withdraw " + volume + " " + stockSymbol + " stocks due to insufficient volume";
+            logger.error(error);
+            throw new InsufficientStockException(error);
         }
     }
 
@@ -36,16 +38,14 @@ public class StockService {
     public void add(String stockSymbol, int volume) throws InvalidStockException {
         boolean success = stockRepository.add(stockSymbol, volume) > 0;
         if (!success) {
-            throw new InvalidStockException("Failed to add stock for stock symbol " + stockSymbol);
+            String error = "Failed to add stock for stock symbol " + stockSymbol;
+            logger.error(error);
+            throw new InvalidStockException(error);
         }
     }
 
     @Transactional(readOnly = true)
-    public Stock getStock(String stockSymbol) throws InvalidStockException {
-        Stock availableStock = stockRepository.findOne(stockSymbol);
-        if (availableStock == null) {
-            throw new InvalidStockException("No such stock with stock symbol " + stockSymbol);
-        }
-        return availableStock;
+    public Stock getStock(String stockSymbol) {
+        return stockRepository.findOne(stockSymbol);
     }
 }

@@ -43,8 +43,7 @@ public class AccountStockId implements Serializable {
 
         AccountStockId that = (AccountStockId) o;
 
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-        return stockSymbol != null ? stockSymbol.equals(that.stockSymbol) : that.stockSymbol == null;
+        return (username != null ? username.equals(that.username) : that.username == null) && (stockSymbol != null ? stockSymbol.equals(that.stockSymbol) : that.stockSymbol == null);
     }
 
     @Override

@@ -55,9 +55,7 @@ public class AccountStock implements Serializable {
 
         AccountStock that = (AccountStock) o;
 
-        if (volume != that.volume) return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-        return stockSymbol != null ? stockSymbol.equals(that.stockSymbol) : that.stockSymbol == null;
+        return volume == that.volume && (username != null ? username.equals(that.username) : that.username == null) && (stockSymbol != null ? stockSymbol.equals(that.stockSymbol) : that.stockSymbol == null);
     }
 
     @Override

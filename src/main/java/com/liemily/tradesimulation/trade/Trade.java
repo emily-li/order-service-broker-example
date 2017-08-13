@@ -54,11 +54,7 @@ public class Trade {
 
         Trade trade = (Trade) o;
 
-        if (tradeId != trade.tradeId) return false;
-        if (volume != trade.volume) return false;
-        if (username != null ? !username.equals(trade.username) : trade.username != null) return false;
-        if (stockSymbol != null ? !stockSymbol.equals(trade.stockSymbol) : trade.stockSymbol != null) return false;
-        return tradeType == trade.tradeType;
+        return tradeId == trade.tradeId && volume == trade.volume && (username != null ? username.equals(trade.username) : trade.username == null) && (stockSymbol != null ? stockSymbol.equals(trade.stockSymbol) : trade.stockSymbol == null) && tradeType == trade.tradeType;
     }
 
     @Override

@@ -52,9 +52,7 @@ public class Stock {
 
         Stock stock = (Stock) o;
 
-        if (volume != stock.volume) return false;
-        if (symbol != null ? !symbol.equals(stock.symbol) : stock.symbol != null) return false;
-        return value != null ? value.doubleValue() == (stock.value.doubleValue()) : stock.value == null;
+        return volume == stock.volume && (symbol != null ? symbol.equals(stock.symbol) : stock.symbol == null) && (value != null ? value.doubleValue() == (stock.value.doubleValue()) : stock.value == null);
     }
 
     @Override
