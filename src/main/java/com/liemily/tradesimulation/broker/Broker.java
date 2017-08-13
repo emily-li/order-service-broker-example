@@ -3,6 +3,7 @@ package com.liemily.tradesimulation.broker;
 import com.liemily.tradesimulation.account.AccountService;
 import com.liemily.tradesimulation.account.exceptions.InsufficientFundsException;
 import com.liemily.tradesimulation.accountstock.AccountStockService;
+import com.liemily.tradesimulation.accountstock.exceptions.InsufficientAccountStockException;
 import com.liemily.tradesimulation.stock.Stock;
 import com.liemily.tradesimulation.stock.StockService;
 import com.liemily.tradesimulation.stock.exceptions.InsufficientStockException;
@@ -35,8 +36,8 @@ public class Broker {
         this.accountStockService = accountStockService;
     }
 
-    @Transactional(rollbackFor = {InsufficientFundsException.class, InsufficientStockException.class, InvalidStockException.class})
-    public void process(Trade trade) throws InsufficientFundsException, InsufficientStockException, InvalidStockException {
+    @Transactional(rollbackFor = {InsufficientAccountStockException.class, InsufficientFundsException.class, InsufficientStockException.class, InvalidStockException.class})
+    public void process(Trade trade) throws InsufficientAccountStockException, InsufficientFundsException, InsufficientStockException, InvalidStockException {
         Trade.TradeType tradeType = trade.getTradeType();
         if (tradeType.equals(Trade.TradeType.BUY)) {
             buy(trade);
@@ -53,8 +54,8 @@ public class Broker {
         accountStockService.addStock(trade.getUsername(), trade.getStockSymbol(), trade.getVolume());
     }
 
-    @Transactional(rollbackFor = {InsufficientStockException.class, InvalidStockException.class})
-    public void sell(Trade trade) throws InsufficientStockException, InvalidStockException {
+    @Transactional(rollbackFor = {InsufficientAccountStockException.class, InsufficientStockException.class, InvalidStockException.class})
+    public void sell(Trade trade) throws InsufficientAccountStockException, InsufficientStockException, InvalidStockException {
         accountStockService.removeStock(trade.getUsername(), trade.getStockSymbol(), trade.getVolume());
         stockService.add(trade.getStockSymbol(), trade.getVolume());
     }
@@ -63,7 +64,9 @@ public class Broker {
     public BigDecimal calculateRequiredCredits(String stockSymbol, int volume) throws InvalidStockException {
         Stock availableStock = stockService.getStock(stockSymbol);
         if (availableStock == null) {
-            throw new InvalidStockException("No available stock with stock symbol " + stockSymbol);
+            String error = "No available stock with stock symbol " + stockSymbol;
+            logger.error(error);
+            throw new InvalidStockException(error);
         }
         return availableStock.getValue().multiply(new BigDecimal(volume));
     }
