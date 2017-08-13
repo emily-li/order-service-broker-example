@@ -10,5 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 public interface StockRepository extends JpaRepository<Stock, String> {
     @Modifying
     @Query("UPDATE Stock SET volume = volume - ?2 WHERE symbol = ?1 AND volume - ?2 >= 0")
-    int withdraw(String stockSymbol, int volume);
+    int remove(String stockSymbol, int volume);
+
+    @Modifying
+    @Query("UPDATE Stock SET volume = volume + ?2 WHERE symbol = ?1")
+    int add(String stockSymbol, int volume);
 }

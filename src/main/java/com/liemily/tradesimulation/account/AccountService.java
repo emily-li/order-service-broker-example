@@ -22,11 +22,10 @@ public class AccountService {
     }
 
     @Transactional
-    public boolean removeCredits(String username, BigDecimal credits) throws InsufficientFundsException {
+    public void removeCredits(String username, BigDecimal credits) throws InsufficientFundsException {
         boolean success = accountRepository.removeCredits(username, credits) > 0;
         if (!success) {
             throw new InsufficientFundsException("Attempted to withdraw " + credits + " but failed as user " + username + " has insufficient funds");
         }
-        return success;
     }
 }

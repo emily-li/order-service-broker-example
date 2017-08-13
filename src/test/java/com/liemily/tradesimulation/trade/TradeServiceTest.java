@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by Emily Li on 12/08/2017.
@@ -48,7 +48,7 @@ public class TradeServiceTest {
     @Autowired
     private AccountStockRepository accountStockRepository;
 
-    private Trade trade;
+    private long tradeId;
     private Stock stock;
     private int volume;
 
@@ -68,9 +68,9 @@ public class TradeServiceTest {
     @After
     public void tearDown() throws Exception {
         try {
-            tradeRepository.delete(trade.getTradeId());
+            tradeRepository.delete(tradeId);
         } catch (EmptyResultDataAccessException e) {
-            logger.info("Attempted to delete trade " + trade.getTradeId() + " but it was not present in the database");
+            logger.info("Attempted to delete trade " + tradeId + " but it was not present in the database");
         }
         try {
             stockRepository.delete(stock);
@@ -85,29 +85,56 @@ public class TradeServiceTest {
     }
 
     @Test(expected = InsufficientStockException.class)
-    public void testProcessInvalidBuyDueToInsufficientStock() throws Exception {
+    public void testProcessInvalidTradeDueToInsufficientStock() throws Exception {
         volume = 10;
-        trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
-        trade = tradeService.process(trade);
+        for (Trade.TradeType tradeType : Trade.TradeType.values()) {
+            Trade trade = new Trade(username, stockSymbol, volume, tradeType);
+            tradeId = tradeService.process(trade);
+        }
     }
 
     @Test(expected = InsufficientFundsException.class)
     public void testProcessInvalidBuyDueToInsufficientCredits() throws Exception {
         volume = 100;
-        trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
-        trade = tradeService.process(trade);
+        Trade trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
+        tradeId = tradeService.process(trade);
     }
 
     @Test
     public void testProcessValidBuy() throws Exception {
         volume = 1;
-        trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
-        trade = tradeService.process(trade);
+        Trade trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
+        tradeId = tradeService.process(trade);
+
+        Trade writtenTrade = tradeRepository.findOne(tradeId);
+        assertNotNull(writtenTrade);
 
         AccountStock accountStock = accountStockService.getAccountStockForUser(username, stockSymbol);
         assertEquals(trade.getUsername(), accountStock.getUsername());
         assertEquals(trade.getStockSymbol(), accountStock.getStockSymbol());
         assertEquals(trade.getVolume(), accountStock.getVolume());
-        assertTrue(trade.getTradeId() > 0);
+    }
+
+    @Test
+    public void testProcessValidSell() throws Exception {
+        volume = 1;
+        accountStockService.addStock(username, stockSymbol, volume);
+        Trade trade = new Trade(username, stockSymbol, volume, Trade.TradeType.SELL);
+        long tradeId = tradeService.process(trade);
+
+        Trade writtenTrade = tradeRepository.findOne(tradeId);
+        assertNotNull(writtenTrade);
+
+        AccountStock accountStock = accountStockService.getAccountStockForUser(username, stockSymbol);
+        // Depending on implementation, AccountStock may or may not exist in database once volume for stock is 0
+        if (accountStock != null) {
+            assertEquals(trade.getUsername(), accountStock.getUsername());
+            assertEquals(trade.getStockSymbol(), accountStock.getStockSymbol());
+            assertEquals(0, accountStock.getVolume());
+        }
+
+        // Assert stock is back on market
+        Stock stock = stockRepository.findOne(stockSymbol);
+        assertEquals(2, stock.getVolume());
     }
 }

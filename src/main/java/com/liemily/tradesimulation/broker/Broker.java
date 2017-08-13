@@ -2,7 +2,6 @@ package com.liemily.tradesimulation.broker;
 
 import com.liemily.tradesimulation.account.AccountService;
 import com.liemily.tradesimulation.account.exceptions.InsufficientFundsException;
-import com.liemily.tradesimulation.accountstock.AccountStock;
 import com.liemily.tradesimulation.accountstock.AccountStockService;
 import com.liemily.tradesimulation.stock.Stock;
 import com.liemily.tradesimulation.stock.StockService;
@@ -36,31 +35,28 @@ public class Broker {
         this.accountStockService = accountStockService;
     }
 
-    @Transactional(rollbackFor = InsufficientFundsException.class)
-    public boolean process(Trade trade) throws InvalidStockException, InsufficientFundsException, InsufficientStockException {
+    @Transactional(rollbackFor = {InsufficientFundsException.class, InsufficientStockException.class, InvalidStockException.class})
+    public void process(Trade trade) throws InsufficientFundsException, InsufficientStockException, InvalidStockException {
+        Trade.TradeType tradeType = trade.getTradeType();
+        if (tradeType.equals(Trade.TradeType.BUY)) {
+            buy(trade);
+        } else if (tradeType.equals(Trade.TradeType.SELL)) {
+            sell(trade);
+        }
+    }
+
+    @Transactional(rollbackFor = {InsufficientFundsException.class, InsufficientStockException.class, InvalidStockException.class})
+    public void buy(Trade trade) throws InsufficientFundsException, InsufficientStockException, InvalidStockException {
         BigDecimal requiredCredits = calculateRequiredCredits(trade.getStockSymbol(), trade.getVolume());
-        boolean withdrawCreditsSuccess = withdrawCredits(trade.getUsername(), requiredCredits);
-        if (!withdrawCreditsSuccess) {
-            throw new InsufficientFundsException("Unable to withdraw credits from user " + trade.getUsername());
-        }
-        boolean buySuccess = buy(trade);
-        if (buySuccess) {
-            AccountStock accountStock = new AccountStock(trade.getUsername(), trade.getStockSymbol(), trade.getVolume());
-            accountStockService.registerStock(accountStock);
-        }
-        return buySuccess;
+        accountService.removeCredits(trade.getUsername(), requiredCredits);
+        stockService.remove(trade.getStockSymbol(), trade.getVolume());
+        accountStockService.addStock(trade.getUsername(), trade.getStockSymbol(), trade.getVolume());
     }
 
-    @Transactional
-    public boolean buy(Trade trade) throws InsufficientStockException {
-        return stockService.withdraw(trade.getStockSymbol(), trade.getVolume());
-    }
-
-    @Transactional
-    public boolean withdrawCredits(String username, BigDecimal credits) throws InsufficientFundsException {
-        boolean success = accountService.removeCredits(username, credits);
-        logger.info("Success status removing " + credits + " credits from account " + username + " was: " + success);
-        return success;
+    @Transactional(rollbackFor = {InsufficientStockException.class, InvalidStockException.class})
+    public void sell(Trade trade) throws InsufficientStockException, InvalidStockException {
+        accountStockService.removeStock(trade.getUsername(), trade.getStockSymbol(), trade.getVolume());
+        stockService.add(trade.getStockSymbol(), trade.getVolume());
     }
 
     @Transactional(readOnly = true)
