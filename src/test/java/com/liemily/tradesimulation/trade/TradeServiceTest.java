@@ -89,7 +89,6 @@ public class TradeServiceTest {
         volume = 10;
         trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
         trade = tradeService.process(trade);
-        assertEquals(0, trade.getTradeId());
     }
 
     @Test(expected = InsufficientFundsException.class)
@@ -97,7 +96,6 @@ public class TradeServiceTest {
         volume = 100;
         trade = new Trade(username, stockSymbol, volume, Trade.TradeType.BUY);
         trade = tradeService.process(trade);
-        assertEquals(0, trade.getTradeId());
     }
 
     @Test
