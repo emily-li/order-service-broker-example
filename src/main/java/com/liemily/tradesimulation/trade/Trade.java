@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class Trade {
     @Id
     @GeneratedValue
-    private long orderId;
+    private long tradeId;
     private String username;
     private String stockSymbol;
     private int volume;
@@ -27,8 +27,8 @@ public class Trade {
         this.tradeType = tradeType;
     }
 
-    public long getOrderId() {
-        return orderId;
+    public long getTradeId() {
+        return tradeId;
     }
 
     public String getUsername() {
@@ -54,7 +54,7 @@ public class Trade {
 
         Trade trade = (Trade) o;
 
-        if (orderId != trade.orderId) return false;
+        if (tradeId != trade.tradeId) return false;
         if (volume != trade.volume) return false;
         if (username != null ? !username.equals(trade.username) : trade.username != null) return false;
         if (stockSymbol != null ? !stockSymbol.equals(trade.stockSymbol) : trade.stockSymbol != null) return false;
@@ -63,7 +63,7 @@ public class Trade {
 
     @Override
     public int hashCode() {
-        int result = (int) (orderId ^ (orderId >>> 32));
+        int result = (int) (tradeId ^ (tradeId >>> 32));
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (stockSymbol != null ? stockSymbol.hashCode() : 0);
         result = 31 * result + volume;
