@@ -6,14 +6,14 @@ import com.liemily.tradesimulation.stock.exceptions.InsufficientStockException;
 import com.liemily.tradesimulation.stock.exceptions.InvalidStockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
 /**
  * Created by Emily Li on 12/08/2017.
  */
-@Component
+@Service
 @Lazy
 public class TradeService {
     private Broker broker;
@@ -32,6 +32,7 @@ public class TradeService {
      *              The trade ID is expected to be populated by the caller when persisted.
      * @return Returns Trade object with id
      */
+    @Transactional
     Trade process(Trade trade) throws InvalidStockException, InsufficientFundsException, InsufficientStockException {
         boolean success = broker.process(trade);
         if (success) {
