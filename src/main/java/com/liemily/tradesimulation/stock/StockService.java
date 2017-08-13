@@ -5,6 +5,7 @@ import com.liemily.tradesimulation.stock.exceptions.InvalidStockException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Created by Emily Li on 23/07/2017.
  */
 @Service
+@Lazy
 public class StockService {
     private static final Logger logger = LogManager.getLogger(StockService.class);
 
